@@ -196,6 +196,11 @@ void hd44780_init(void)
 
 }
 
+void hd44780_display_hal_power(e_deasplay_power state)
+{
+    /* STUB */
+}
+
 void hd44780_display_hal_init(void)
 {
     /* Initialize the shift register backend

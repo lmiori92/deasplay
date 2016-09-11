@@ -42,8 +42,7 @@ typedef enum
 /**< The structure to hold the display state */
 typedef struct
 {
-    uint8_t line_n;     /**< Selected line (0..DISPLAY_LINE_NUM - 1) */
-    uint8_t char_n;     /**< Selected line (0..DISPLAY_CHAR_NUM - 1) */
+    uint8_t index;     /**< Selected line and character */
 } t_display_status;
 
 /**< The structure holds the state of a single display element (i.e. a character) */
@@ -56,8 +55,7 @@ typedef struct
 /* Display APIs */
 void display_init(void);
 void display_power(e_deasplay_power state);
-void display_clear(uint8_t lines, bool force);
-void display_clear_all(void);
+void display_clear(void);
 void display_clean(void);
 void display_periodic(void);
 void display_set_cursor(uint8_t line, uint8_t chr);

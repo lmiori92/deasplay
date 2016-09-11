@@ -30,7 +30,18 @@
 #include <stdint.h>
 
 #if defined(DEASPLAY_HD44780)
-#error "Not implemented yet!"
+
+#include "driver/HD44780/hd44780_hal.h"
+
+#define DEASPLAY_LINES      HD44780_LINES
+#define DEASPLAY_CHARS      HD44780_CHARS
+
+#define deasplay_hal_init               hd44780_display_hal_init
+#define deasplay_hal_power              hd44780_display_hal_power
+#define deasplay_hal_set_cursor         hd44780_display_hal_set_cursor
+#define deasplay_hal_write_char         hd44780_display_hal_write_char
+#define deasplay_hal_cursor_visibility  hd44780_display_hal_cursor_visibility
+
 #elif defined(DEASPLAY_LC75710)
 
 #include "driver/LC75710/lc75710_hal.h"

@@ -34,11 +34,14 @@
 
 #include "configuration.h"
 
+#define DEASPLAY_BUFFER_ELEMENTS        (DEASPLAY_LINES * DEASPLAY_CHARS)
+#define DEASPLAY_BUFFER_INDEX_MAX       (DEASPLAY_BUFFER_ELEMENTS - 1U)
+
 static t_display_status display_status;
-static t_display_elem   display_buffer[DEASPLAY_LINES][DEASPLAY_CHARS];
+static t_display_elem   display_buffer[DEASPLAY_BUFFER_ELEMENTS];
 
 #ifdef DISPLAY_HAS_PRINTF
-static char snprintf_buf[DEASPLAY_CHARS*DEASPLAY_LINES];
+static char snprintf_buf[DEASPLAY_BUFFER_ELEMENTS];
 #endif
 
 void display_init(void)
@@ -52,46 +55,47 @@ void display_power(e_deasplay_power state)
     deasplay_hal_power(state);
 }
 
-void display_clear(uint8_t lines, bool force)
+void display_clear(void)
 {
-    uint8_t i,j;
-    for (i = 0; i < DEASPLAY_LINES; i++)
-    {
-        if (((lines >> i) & 0x1U) == 0x1U)
-        {
-            for (j = 0; j < DEASPLAY_CHARS; j++)
-            {
-                display_buffer[i][j].character = (uint8_t)' ';          /* space in the current buffer */
-                if (force == true) display_buffer[i][j].character_prev = (uint8_t)'\0';    /* zero the previous buffer to force a complete redraw */
-            }
-        }
-    }
-}
+    uint8_t i;
 
-void display_clear_all(void)
-{
-    display_clear(0xFFU, true);
+    for (i = 0; i < DEASPLAY_BUFFER_ELEMENTS; i++)
+    {
+        display_buffer[i].character = (uint8_t)' ';          /* space in the current buffer */
+        display_buffer[i].character_prev = (uint8_t)'\0';    /* zero the previous buffer to force a complete redraw */
+    }
+
 }
 
 void display_clean(void)
 {
-    display_clear(0xFFU, false);
+    uint8_t i;
+
+    for (i = 0; i < DEASPLAY_BUFFER_ELEMENTS; i++)
+    {
+        display_buffer[i].character = (uint8_t)' ';          /* space in the current buffer */
+    }
 }
 
 void display_periodic(void)
 {
-    uint8_t i, j;
+    uint8_t i;
+    uint8_t line = 0U;
+    uint8_t chr = 0U;
 
-    for (i = 0; i < DEASPLAY_LINES; i++)
+    for (i = 0; i < DEASPLAY_BUFFER_ELEMENTS; i++)
     {
-        for (j = 0; j < DEASPLAY_CHARS; j++)
+        if (display_buffer[i].character != display_buffer[i].character_prev)
         {
-            if (display_buffer[i][j].character != display_buffer[i][j].character_prev)
-            {
-                display_buffer[i][j].character_prev = display_buffer[i][j].character;
-                deasplay_hal_set_cursor(i, j);
-                deasplay_hal_write_char(display_buffer[i][j].character);
-           }
+            display_buffer[i].character_prev = display_buffer[i].character;
+            deasplay_hal_set_cursor(line, chr);
+            deasplay_hal_write_char(display_buffer[i].character);
+        }
+        chr++;
+        if (chr >= DEASPLAY_CHARS)
+        {
+            chr = 0;
+            line++;
         }
     }
 
@@ -99,30 +103,19 @@ void display_periodic(void)
 
 void display_set_cursor(uint8_t line, uint8_t chr)
 {
-    display_status.line_n = (line < DEASPLAY_LINES) ? line : (DEASPLAY_LINES - 1U);
-    display_status.char_n = (chr  < DEASPLAY_CHARS) ? chr  : (DEASPLAY_CHARS - 1U);
+    display_status.index = (line * DEASPLAY_CHARS) + chr;
 }
 
 void display_advance_cursor(uint8_t num)
 {
-    uint8_t tmp;
-    uint8_t dline;
-    uint8_t dchar;
-
-    tmp = (display_status.line_n * DEASPLAY_CHARS) + display_status.char_n + num;
-    if (tmp >= (DEASPLAY_CHARS * DEASPLAY_LINES))
+    if ((DEASPLAY_BUFFER_INDEX_MAX - display_status.index) > num)
     {
-        dchar = DEASPLAY_CHARS - 1U;
-        dline = DEASPLAY_LINES - 1U;
+        display_status.index += num;
     }
     else
     {
-        dchar = tmp % DEASPLAY_CHARS;
-        dline = tmp / DEASPLAY_CHARS;
+        display_status.index = DEASPLAY_BUFFER_INDEX_MAX;
     }
-
-    display_set_cursor(dline, dchar);
-
 }
 
 void display_enable_cursor(bool visible)
@@ -133,7 +126,7 @@ void display_enable_cursor(bool visible)
 void display_write_char(uint8_t chr)
 {
     /* add char to buffer */
-    display_buffer[display_status.line_n][display_status.char_n].character = chr;
+    display_buffer[display_status.index].character = chr;
     /* advance the cursor */
     display_advance_cursor(1U);
 }

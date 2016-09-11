@@ -48,7 +48,7 @@
 /** This is the core feature: define here the driver your
  * project uses. Please see source or documentation for
  * hints about the available devices */
-#define DEASPLAY_LC75710
+#define DEASPLAY_HD44780
 /*#define DEASPLAY_HD44780*/
 
 #include "deasplay_hal.h"
