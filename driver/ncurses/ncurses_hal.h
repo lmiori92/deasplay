@@ -29,13 +29,13 @@
 #ifndef SRC_DEASPLAY_DRIVER_NCURSES_NCURSES_HAL_H_
 #define SRC_DEASPLAY_DRIVER_NCURSES_NCURSES_HAL_H_
 
-#include "../../deasplay.h"
+#include "../deasplay_HAL.h"
 
 #define NCURSES_LINES       DEASPLAY_LINES    /**< Number of lines */
 #define NCURSES_CHARS       DEASPLAY_CHARS    /**< Number of character per lines */
 
 void ncurses_display_hal_init(void);
-void ncurses_display_hal_power(e_deasplay_power state);
+void ncurses_display_hal_power(e_deasplay_HAL_power state);
 void ncurses_display_hal_set_cursor(uint8_t line, uint8_t chr);
 void ncurses_display_hal_write_char(uint8_t chr);
 void ncurses_display_hal_cursor_visibility(bool visible);

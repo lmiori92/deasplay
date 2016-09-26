@@ -59,7 +59,15 @@ typedef enum
 #elif defined(DEASPLAY_UART)
 #error "Not implemented yet!"
 #elif defined(DEASPLAY_NCURSES)
-#error "Not implemented yet!"
+
+#include "ncurses/ncurses_hal.h"
+
+#define deasplay_hal_init               ncurses_display_hal_init
+#define deasplay_hal_power              ncurses_display_hal_power
+#define deasplay_hal_set_cursor         ncurses_display_hal_set_cursor
+#define deasplay_hal_write_char         ncurses_display_hal_write_char
+#define deasplay_hal_cursor_visibility  ncurses_display_hal_cursor_visibility
+
 #else
 #error "Please define a display driver."
 #endif
