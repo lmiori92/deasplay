@@ -30,6 +30,9 @@
 #include <string.h>
 #include <stdint.h>
 
+#include "../deasplay_config.h"
+#include "driver/deasplay_hal.h"
+
 #define DEASPLAY_VERSION        0x0100U   /**< Version 1.0 */
 
 /**< Power states enumeration */

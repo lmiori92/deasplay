@@ -32,7 +32,7 @@
 
 #include <stdio.h>  /* printf-like facility */
 
-#include "configuration.h"
+#include "deasplay.h"
 
 #define DEASPLAY_BUFFER_ELEMENTS        (DEASPLAY_LINES * DEASPLAY_CHARS)
 #define DEASPLAY_BUFFER_INDEX_MAX       (DEASPLAY_BUFFER_ELEMENTS - 1U)

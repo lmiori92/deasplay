@@ -23,18 +23,22 @@
  * @brief Display HAL abstraction layer
  */
 
-#ifndef DEASPLAY_HAL_H_
-#define DEASPLAY_HAL_H_
+#ifndef DEASPLAY_DRIVER_HAL_H_
+#define DEASPLAY_DRIVER_HAL_H_
 
 #include <stdbool.h>
 #include <stdint.h>
 
+/**< Power states enumeration */
+typedef enum
+{
+    DEASPLAY_HAL_POWER_OFF,     /**< Indicates a power OFF state (e.g. no backlight or power) */
+    DEASPLAY_HAL_POWER_ON       /**< Indicates a power ON state (e.g. backlight on or simply powered) */
+} e_deasplay_HAL_power;
+
 #if defined(DEASPLAY_HD44780)
 
-#include "driver/HD44780/hd44780_hal.h"
-
-#define DEASPLAY_LINES      HD44780_LINES
-#define DEASPLAY_CHARS      HD44780_CHARS
+#include "HD44780/hd44780_hal.h"
 
 #define deasplay_hal_init               hd44780_display_hal_init
 #define deasplay_hal_power              hd44780_display_hal_power
@@ -44,10 +48,7 @@
 
 #elif defined(DEASPLAY_LC75710)
 
-#include "driver/LC75710/lc75710_hal.h"
-
-#define DEASPLAY_LINES      LC75710_LINES
-#define DEASPLAY_CHARS      LC75710_CHARS
+#include "LC75710/lc75710_hal.h"
 
 #define deasplay_hal_init               lc75710_display_hal_init
 #define deasplay_hal_power              lc75710_display_hal_power

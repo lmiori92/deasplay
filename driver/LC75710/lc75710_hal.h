@@ -31,11 +31,11 @@
 
 #include "../../deasplay.h"
 
-#define LC75710_LINES        1U     /**< Number of lines */
-#define LC75710_CHARS       10U     /**< Number of character per lines */
+#define LC75710_LINES       DEASPLAY_LINES    /**< Number of lines */
+#define LC75710_CHARS       DEASPLAY_CHARS    /**< Number of character per lines */
 
 void lc75710_display_hal_init(void);
-void lc75710_display_hal_power(e_deasplay_power state);
+void lc75710_display_hal_power(e_deasplay_HAL_power state);
 void lc75710_display_hal_set_cursor(uint8_t line, uint8_t chr);
 void lc75710_display_hal_write_char(uint8_t chr);
 void lc75710_display_hal_cursor_visibility(bool visible);

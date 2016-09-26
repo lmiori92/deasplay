@@ -40,7 +40,7 @@ void lc75710_display_hal_init(void)
     lc75710_init();
 }
 
-void lc75710_display_hal_power(e_deasplay_power state)
+void lc75710_display_hal_power(e_deasplay_HAL_power state)
 {
     switch(state)
     {

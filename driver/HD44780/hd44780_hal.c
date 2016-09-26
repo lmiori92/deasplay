@@ -1,6 +1,5 @@
 
 #include "../../deasplay.h"
-#include "../../configuration.h"
 
 #ifdef DEASPLAY_HD44780
 
@@ -196,7 +195,7 @@ void hd44780_init(void)
 
 }
 
-void hd44780_display_hal_power(e_deasplay_power state)
+void hd44780_display_hal_power(e_deasplay_HAL_power state)
 {
     /* STUB */
 }
