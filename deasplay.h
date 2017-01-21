@@ -35,6 +35,9 @@
 
 #define DEASPLAY_VERSION        0x0100U   /**< Version 1.0 */
 
+#define DEASPLAY_BRIGHT_QUERY   0xFFU     /**< Mock brightness value that returns the actual brightness value */
+#define DEASPLAY_BRIGHT_MAX     0xFEU     /**< Mock brightness value that returns the maximum available */
+
 /**< Power states enumeration */
 typedef enum
 {
@@ -64,6 +67,7 @@ void display_periodic(void);
 void display_set_cursor(uint8_t line, uint8_t chr);
 void display_enable_cursor(bool visible);
 void display_advance_cursor(uint8_t num);
+uint8_t display_brightness(uint8_t value);
 void display_write_char(uint8_t chr);
 void display_write_string(char *str);
 void display_write_number(uint16_t number, bool leading_zeros);
