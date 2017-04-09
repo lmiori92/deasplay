@@ -206,6 +206,9 @@ void hd44780_init(void)
 
     hd44780_write_command(HD44780_FUNCTIONSET | HD44780_4BITMODE | HD44780_2LINE | HD44780_5x8DOTS);
 
+    /* left to right character insertion */
+    hd44780_write_command(HD44780_ENTRYMODESET | HD44780_ENTRYLEFT);
+
     lcd_displayparams = HD44780_CURSOROFF | HD44780_BLINKOFF | HD44780_DISPLAYON;
     hd44780_write_command(HD44780_DISPLAYCONTROL | lcd_displayparams);
 
