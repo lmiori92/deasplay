@@ -42,6 +42,8 @@
 #define MDATA_ONLY              0x2     /**< Command does affect MDATA only */
 #define MDATA_AND_ADATA         0x3     /**< Command does affect both ADATA and MDATA */
 
+#define LC75710_CGRAM_SIZE      (8U)    /**< The size of the CGRAM (characters) */
+
 void lc75710_write(uint32_t data);
 void lc75710_write_56bits(uint64_t data);
 void lc75710_blink(uint8_t operation, uint8_t period, uint16_t digits);

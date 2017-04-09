@@ -26,14 +26,22 @@
 #ifndef DEASPLAY_H_
 #define DEASPLAY_H_
 
+/* Let this library to be also compilable in C++ projects */
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 #include <stdbool.h>
 #include <string.h>
 #include <stdint.h>
 
-#include "../deasplay_config.h"
+#include "deasplay_config.h"
 #include "driver/deasplay_hal.h"
 
-#define DEASPLAY_VERSION        0x0100U   /**< Version 1.0 */
+typedef uint8_t deasplay_index_t;
+
+#define DEASPLAY_VERSION        0x0200U   /**< Version 2.0 */
 
 /**< Power states enumeration */
 typedef enum
@@ -45,7 +53,7 @@ typedef enum
 /**< The structure to hold the display state */
 typedef struct
 {
-    uint8_t index;     /**< Selected line and character */
+    deasplay_index_t index;     /**< Selected line and character */
 } t_display_status;
 
 /**< The structure holds the state of a single display element (i.e. a character) */
@@ -68,8 +76,19 @@ void display_write_char(uint8_t chr);
 void display_write_string(char *str);
 void display_write_number(uint16_t number, bool leading_zeros);
 
+/* Character interface */
+void display_set_extended(uint8_t id, uint8_t *data, uint8_t len);
+
+/* Bitmapped display API */
+uint8_t* display_get_buffer(void);
+void display_write_buffer(uint8_t x_rect, uint8_t y_rect);
+
 #ifdef DISPLAY_HAS_PRINTF
 void display_write_stringf(char *fmt, ...);
+#endif
+
+#ifdef __cplusplus
+}
 #endif
 
 #endif /* DISPLAY_H_ */

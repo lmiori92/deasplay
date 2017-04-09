@@ -40,4 +40,8 @@ void ncurses_display_hal_set_cursor(uint8_t line, uint8_t chr);
 void ncurses_display_hal_write_char(uint8_t chr);
 void ncurses_display_hal_cursor_visibility(bool visible);
 
+/* Enable library features */
+#define HAS_CHARACTER_INTERFACE
+/*#define HAS_BITMAP_INTERFACE*/
+
 #endif /* SRC_DEASPLAY_DRIVER_NCURSES_NCURSES_HAL_H_ */

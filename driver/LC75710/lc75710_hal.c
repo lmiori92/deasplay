@@ -26,6 +26,8 @@
  * @brief Display HAL to interface the APIs to the UART
  */
 
+#ifdef DEASPLAY_LC75710
+
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -69,3 +71,36 @@ void lc75710_display_hal_cursor_visibility(bool visible)
 {
     /* Not available on the LC75710 controller */
 }
+
+void lc75710_hal_write_extended(uint8_t id)
+{
+    if (id < LC75710_CGRAM_SIZE)
+        lc75710_dcram_write(pos, id);
+}
+
+void lc75710_hal_set_extended(uint8_t id, uint8_t *data, uint8_t len)
+{
+    uint64_t tmp;
+    if (id < LC75710_CGRAM_SIZE)
+    {
+        tmp |= (uint64_t)(*data);
+        data++;
+        tmp |= (uint64_t)(*data << 8U);
+        data++;
+        tmp |= (uint64_t)(*data << 16U);
+        data++;
+        tmp |= (uint64_t)(*data << 24U);
+        data++;
+        tmp |= (uint64_t)(*data << 32U);
+        data++;
+        tmp |= (uint64_t)(*data << 40U);
+        data++;
+        tmp |= (uint64_t)(*data << 48U);
+        data++;
+        tmp |= (uint64_t)(*data << 56U);
+        lc75710_cgram_write(id, tmp);
+    }
+
+}
+
+#endif  /* DEASPLAY_LC75710 */

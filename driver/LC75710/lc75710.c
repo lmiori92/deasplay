@@ -26,7 +26,9 @@
  * @brief Implementation of LC75710 driver functions
  */
 
-#include "../../../deasplay/driver/LC75710/lc75710.h"
+#include "lc75710.h"
+
+#ifdef DEASPLAY_LC75710
 
 #include "avr/io.h"
 #include <util/delay.h>
@@ -431,3 +433,5 @@ void lc75710_init()
     /*lc75710_on_off(MDATA_AND_ADATA, true, 0xFFFF);*/
 
 }
+
+#endif  /* DEASPLAY_LC75710 */

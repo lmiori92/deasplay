@@ -29,12 +29,29 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#include "../taxibus/interface.h"
+
 /**< Power states enumeration */
 typedef enum
 {
     DEASPLAY_HAL_POWER_OFF,     /**< Indicates a power OFF state (e.g. no backlight or power) */
     DEASPLAY_HAL_POWER_ON       /**< Indicates a power ON state (e.g. backlight on or simply powered) */
 } e_deasplay_HAL_power;
+
+typedef void (*t_deasplay_delay_us)(uint32_t us);
+
+extern t_interface *hw_interface;
+extern t_deasplay_delay_us hw_delay;
+
+/**< The bitmap buffer. Every device can define its own
+ * for performance reason (including e.g. an initial command)
+ * The requirement is that this pointer must point to real
+ * image data, not any metadata */
+extern uint8_t *bitmap_buffer;
+
+
+#define DISPLAY_SET_INTERFACE(x)    (hw_interface = (x))
+#define DISPLAY_SET_DELAYUS(x)      (hw_delay = (x))
 
 #if defined(DEASPLAY_HD44780)
 
@@ -45,6 +62,8 @@ typedef enum
 #define deasplay_hal_set_cursor         hd44780_display_hal_set_cursor
 #define deasplay_hal_write_char         hd44780_display_hal_write_char
 #define deasplay_hal_cursor_visibility  hd44780_display_hal_cursor_visibility
+#define deasplay_hal_write_extended     hd44780_write_extended
+#define deasplay_hal_set_extended       hd44780_set_extended
 
 #elif defined(DEASPLAY_LC75710)
 
@@ -55,9 +74,13 @@ typedef enum
 #define deasplay_hal_set_cursor         lc75710_display_hal_set_cursor
 #define deasplay_hal_write_char         lc75710_display_hal_write_char
 #define deasplay_hal_cursor_visibility  lc75710_display_hal_cursor_visibility
+#define deasplay_hal_write_extended     lc75710_write_extended
+#define deasplay_hal_set_extended       lc75710_set_extended
 
 #elif defined(DEASPLAY_UART)
+
 #error "Not implemented yet!"
+
 #elif defined(DEASPLAY_NCURSES)
 
 #include "ncurses/ncurses_hal.h"
@@ -67,6 +90,22 @@ typedef enum
 #define deasplay_hal_set_cursor         ncurses_display_hal_set_cursor
 #define deasplay_hal_write_char         ncurses_display_hal_write_char
 #define deasplay_hal_cursor_visibility  ncurses_display_hal_cursor_visibility
+#define deasplay_hal_write_extended     ncurses_write_extended
+#define deasplay_hal_set_extended       ncurses_set_extended
+
+#elif defined(DEASPLAY_SSD1036)
+
+#include "SSD1036/ssd1036.h"
+
+#define HAS_BITMAP
+
+#define deasplay_hal_init               ssd1036_display_hal_init
+#define deasplay_hal_power              ssd1036_display_hal_power
+#define deasplay_hal_set_cursor         ssd1036_display_hal_set_cursor
+#define deasplay_hal_write_char         ssd1036_display_hal_write_char
+#define deasplay_hal_cursor_visibility  ssd1036_display_hal_cursor_visibility
+#define deasplay_hal_write_extended     ssd1036_write_extended
+#define deasplay_hal_set_extended       ssd1036_set_extended
 
 #else
 #error "Please define a display driver."

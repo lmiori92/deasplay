@@ -39,5 +39,10 @@ void hd44780_display_hal_power(e_deasplay_HAL_power state);
 void hd44780_display_hal_set_cursor(uint8_t line, uint8_t chr);
 void hd44780_display_hal_write_char(uint8_t chr);
 void hd44780_display_hal_cursor_visibility(bool visible);
+void hd44780_set_extended(uint8_t id, uint8_t *data, uint8_t len);
+
+/* Enable library features */
+#define HAS_CHARACTER_INTERFACE
+/*#define HAS_BITMAP_INTERFACE*/
 
 #endif /* SRC_DEASPLAY_DRIVER_LC75710_LC75710_HAL_H_ */

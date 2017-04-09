@@ -1,24 +1,37 @@
+/*
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
 
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+    Lorenzo Miori (C) 2016 [ 3M4|L: memoryS60<at>gmail.com ]
+
+    Version History
+        * 1.0 initial
+
+*/
+
+/**
+ * @file
+ * @author Lorenzo Miori
+ * @date Apr 2017
+ * @brief Display HAL to interface the APIs to the HD44780
+ */
+
+/* include the settings, to see if the file has to be compiled */
 #include "../../deasplay.h"
 
 #ifdef DEASPLAY_HD44780
 
-#include <avr/io.h>
-#include <util/delay.h>
-
-#define SHIFT_LATCH_PIN     PIN3   /**< STCP 74HC595 PIN */
-#define SHIFT_CLOCK_PIN     PIN4   /**< SHCP 74HC595 PIN */
-#define SHIFT_DATA_PIN      PIN5   /**< DS   74HC595 PIN */
-
-#define SHIFT_PORT          PORTB  /**< Shift PINs PORT */
-#define SHIFT_DDR           DDRB   /**< Shift PINs DDR */
-
-#define SHIFT_LATCH_LOW      SHIFT_PORT &= ~(1 << SHIFT_LATCH_PIN);  /**< latch LOW */
-#define SHIFT_LATCH_HIGH     SHIFT_PORT |=  (1 << SHIFT_LATCH_PIN);  /**< latch HIGH */
-#define SHIFT_CLOCK_LOW      SHIFT_PORT &= ~(1 << SHIFT_CLOCK_PIN);  /**< clock LOW */
-#define SHIFT_CLOCK_HIGH     SHIFT_PORT |=  (1 << SHIFT_CLOCK_PIN);  /**< clock HIGH */
-#define SHIFT_DATA_LOW       SHIFT_PORT &= ~(1 << SHIFT_DATA_PIN);   /**< data LOW */
-#define SHIFT_DATA_HIGH      SHIFT_PORT |=  (1 << SHIFT_DATA_PIN);   /**< data HIGH */
+#include "../../taxibus/interface.h"
 
 static uint8_t hd44780_virtual_port = 0U;
 
@@ -57,81 +70,58 @@ static uint8_t hd44780_virtual_port = 0U;
 #define HD44780_ENTRYSHIFTINCREMENT 0x01
 #define HD44780_ENTRYSHIFTDECREMENT 0x00
 
-#define HD44780_DISPLAYON  0x04
-#define HD44780_DISPLAYOFF 0x00
-#define HD44780_CURSORON   0x02
-#define HD44780_CURSOROFF  0x00
-#define HD44780_BLINKON    0x01
-#define HD44780_BLINKOFF   0x00
+#define HD44780_DISPLAYON       0x04
+#define HD44780_DISPLAYOFF      0x00
+#define HD44780_CURSORON        0x02
+#define HD44780_CURSOROFF       0x00
+#define HD44780_BLINKON         0x01
+#define HD44780_BLINKOFF        0x00
 
-#define HD44780_DISPLAYMOVE 0x08
-#define HD44780_CURSORMOVE  0x00
-#define HD44780_MOVERIGHT   0x04
-#define HD44780_MOVELEFT    0x00
+#define HD44780_DISPLAYMOVE     0x08
+#define HD44780_CURSORMOVE      0x00
+#define HD44780_MOVERIGHT       0x04
+#define HD44780_MOVELEFT        0x00
 
-#define HD44780_8BITMODE 0x10
-#define HD44780_4BITMODE 0x00
-#define HD44780_2LINE    0x08
-#define HD44780_1LINE    0x00
-#define HD44780_5x10DOTS 0x04
-#define HD44780_5x8DOTS  0x00
+#define HD44780_8BITMODE        0x10
+#define HD44780_4BITMODE        0x00
+#define HD44780_2LINE           0x08
+#define HD44780_1LINE           0x00
+#define HD44780_5x10DOTS        0x04
+#define HD44780_5x8DOTS         0x00
 
 static uint8_t lcd_displayparams;
+static uint8_t buffer[9U];
 
-static void shift_init(void)
-{
-    SHIFT_DDR |= (1 << SHIFT_LATCH_PIN);
-    SHIFT_DDR |= (1 << SHIFT_CLOCK_PIN);
-    SHIFT_DDR |= (1 << SHIFT_DATA_PIN);
-}
-
-static void shift_out(void)
-{
-    uint8_t i;
-    /* Do not transfer the temporary register to the outputs */
-    SHIFT_CLOCK_LOW;
-    SHIFT_LATCH_LOW;
-
-    for (i = 0; i < 8; i++)
-    {
-        /* Shift bits out */
-        if (((HD44780_PORT >> i) & 0x01U) == 0x01U)
-        {
-            SHIFT_DATA_HIGH;
-        }
-        else
-        {
-            SHIFT_DATA_LOW;
-        }
-        /* Clocks the bits */
-        SHIFT_CLOCK_HIGH;
-        SHIFT_CLOCK_LOW;
-    }
-
-    /* Transfer the temporary register to the outputs */
-    SHIFT_LATCH_HIGH;
-    SHIFT_LATCH_LOW;
-
-}
+t_interface *hw_interface = NULL;
+t_deasplay_delay_us hw_delay = NULL;
 
 static void hd44780_write_nibble(uint8_t nibble)
 {
-    /* Set DATA in the virtual port */
-    HD44780_PORT = (HD44780_PORT & ~(0x0f << HD44780_D4)) | ((nibble & 0x0f) << HD44780_D4);
-    shift_out();
+    uint8_t i = 0;
 
-    /* Clocks the ENABLE */
+    /* a nibble is 4 bytes long */
+    hw_interface->state.len = 4;
+
+    HD44780_PORT = (HD44780_PORT & ~(0x0f << HD44780_D4)) | ((nibble & 0x0f) << HD44780_D4);
+    buffer[i++] = HD44780_PORT;
     HD44780_PORT &= ~(1 << HD44780_EN);
-    shift_out();
+    buffer[i++] = HD44780_PORT;
     HD44780_PORT |= (1 << HD44780_EN);
-    shift_out();
+    buffer[i++] = HD44780_PORT;
     HD44780_PORT &= ~(1 << HD44780_EN);
-    shift_out();
-    //_delay_us(1);   /* adjust if needed! */
+    buffer[i++] = HD44780_PORT;
+
+    /* write to the interface */
+    hw_interface->write(hw_interface);
+
 }
 
 static void hd44780_transmit(uint8_t data, uint8_t tx_mode)
 {
+    uint8_t i = 0;
+
+    /* a full transmit is 9 bytes long */
+    hw_interface->state.len = 9;
 
     if (tx_mode)
     {
@@ -141,14 +131,35 @@ static void hd44780_transmit(uint8_t data, uint8_t tx_mode)
     {
         HD44780_PORT &= ~(1 << HD44780_RS);
     }
-    shift_out();
+    buffer[i++] = HD44780_PORT;
 
     /* RW pin is always tied to GND in this implementation
      * (no need to pull it low here) */
 
-    /* Write the 2 4bits nibbles */
-    hd44780_write_nibble(data >> 4U);
-    hd44780_write_nibble(data);
+//    hd44780_write_nibble(data >> 4U);
+//    hd44780_write_nibble(data);
+
+    /* Write the 2 4bits nibbles: 1st */
+    HD44780_PORT = (HD44780_PORT & ~(0x0f << HD44780_D4)) | ((data >> 4U & 0x0f) << HD44780_D4);
+    buffer[i++] = HD44780_PORT;
+    HD44780_PORT &= ~(1 << HD44780_EN);
+    buffer[i++] = HD44780_PORT;
+    HD44780_PORT |= (1 << HD44780_EN);
+    buffer[i++] = HD44780_PORT;
+    HD44780_PORT &= ~(1 << HD44780_EN);
+    buffer[i++] = HD44780_PORT;
+    /* Write the 2 4bits nibbles: 2nd */
+    HD44780_PORT = (HD44780_PORT & ~(0x0f << HD44780_D4)) | ((data & 0x0f) << HD44780_D4);
+    buffer[i++] = HD44780_PORT;
+    HD44780_PORT &= ~(1 << HD44780_EN);
+    buffer[i++] = HD44780_PORT;
+    HD44780_PORT |= (1 << HD44780_EN);
+    buffer[i++] = HD44780_PORT;
+    HD44780_PORT &= ~(1 << HD44780_EN);
+    buffer[i++] = HD44780_PORT;
+
+    /* write to the interface */
+    hw_interface->write(hw_interface);
 
 }
 
@@ -162,14 +173,19 @@ static void hd44780_write_data(uint8_t data)
     hd44780_transmit(data, MODE_WRITE_DATA);
 }
 
+#define _delay_ms(x)    hw_delay(x*1000);
+
 void hd44780_init(void)
 {
+
+    INTERFACE_DATA(hw_interface->state, buffer, sizeof(buffer));
+    memset(buffer, 0, sizeof(buffer));
+    HD44780_PORT = 0U;
+    hw_interface->write(hw_interface);
 
     /* Wait for more than 15ms when Vcc raises to 4.5V */
     _delay_ms(150);
 
-    HD44780_PORT = 0U;
-    shift_out();
     _delay_ms(5);
 
     /* Follow initialization sequence from the datasheet */
@@ -202,11 +218,6 @@ void hd44780_display_hal_power(e_deasplay_HAL_power state)
 
 void hd44780_display_hal_init(void)
 {
-    /* Initialize the shift register backend
-     * to be used with the virtual port register */
-    shift_init();
-    shift_out();
-
     /* Initialize the HD44780 chipset and LCD */
     hd44780_init();
     hd44780_write_command(HD44780_CLEARDISPLAY);
@@ -245,6 +256,19 @@ void hd44780_display_hal_cursor_visibility(bool visible)
 
     hd44780_write_command(HD44780_DISPLAYCONTROL | lcd_displayparams);
 
+}
+
+
+void hd44780_set_extended(uint8_t id, uint8_t *data, uint8_t len)
+{
+    uint8_t i = 0;
+    hd44780_write_command(0x40 + id);
+    hw_delay(100);
+    for (i = 0; i < len; i++)
+    {
+        hd44780_write_data(data[i]);
+        hw_delay(100);
+    }
 }
 
 #endif  /* DEASPLAY_HD44780 */
