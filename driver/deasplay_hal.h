@@ -29,7 +29,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "../taxibus/interface.h"
+#include "taxibus/interface.h"
 
 /**< Power states enumeration */
 typedef enum
@@ -41,6 +41,7 @@ typedef enum
 typedef void (*t_deasplay_delay_us)(uint32_t us);
 
 extern t_interface *hw_interface;
+extern t_interface *ctrl_interface;
 extern t_deasplay_delay_us hw_delay;
 
 /**< The bitmap buffer. Every device can define its own
@@ -50,8 +51,9 @@ extern t_deasplay_delay_us hw_delay;
 extern uint8_t *bitmap_buffer;
 
 
-#define DISPLAY_SET_INTERFACE(x)    (hw_interface = (x))
-#define DISPLAY_SET_DELAYUS(x)      (hw_delay = (x))
+#define DISPLAY_SET_INTERFACE(x)        (hw_interface = (x))
+#define DISPLAY_SET_CTRL_INTERFACE(x)   (ctrl_interface = (x))
+#define DISPLAY_SET_DELAYUS(x)          (hw_delay = (x))
 
 #if defined(DEASPLAY_HD44780)
 
@@ -106,6 +108,21 @@ extern uint8_t *bitmap_buffer;
 #define deasplay_hal_cursor_visibility  ssd1036_display_hal_cursor_visibility
 #define deasplay_hal_write_extended     ssd1036_write_extended
 #define deasplay_hal_set_extended       ssd1036_set_extended
+
+#elif defined(DEASPLAY_PCD8544)
+
+#include "PCD8544/pcd8544.h"
+
+#define HAS_BITMAP
+
+#define deasplay_hal_init               pcd8544_display_hal_init
+#define deasplay_hal_power              pcd8544_display_hal_power
+#define deasplay_hal_set_cursor         pcd8544_display_hal_set_cursor
+#define deasplay_hal_write_char         pcd8544_display_hal_write_char
+#define deasplay_hal_cursor_visibility  pcd8544_display_hal_cursor_visibility
+#define deasplay_hal_write_extended     pcd8544_write_extended
+#define deasplay_hal_set_extended       pcd8544_set_extended
+
 
 #else
 #error "Please define a display driver."
