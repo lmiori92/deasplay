@@ -18,12 +18,12 @@ I am pretty sure there are tons of similar libraries around but I still wanted t
 # Available drivers
 The library is capable of interfacing with several different display and even terminals; in fact it has been tested with the following devices:
 
-- LC7510 (VFD display 1 line by 10 characters)
-- HD44780 (LCD display 2 lines by 16 characters)
+- [LC7510](https://github.com/lmiori92/deasplay-LC75710) (VFD display 1 line by 10 characters)
+- [HD44780](https://github.com/lmiori92/deasplay-HD44780) (LCD display 2 lines by 16 characters)
+- [NCURSES](https://github.com/lmiori92/deasplay-NCURSES) (Simulation Linux PC program 2 lines by 16 characters)
+- [SSD1036](https://github.com/lmiori92/deasplay-SSD1036) (128x32 OLED bitmap display)
+- [PCD8544](https://github.com/lmiori92/deasplay-PCD8544) (Nokia 3310 display)
 - UART (Terminal-based display for testing w/o display HW, 2 lines by 16 characters)
-- NCURSES (Simulation Linux PC program 2 lines by 16 characters)
-- SSD1036 (128x32 OLED bitmap display)
-- PCD8544 (Nokia 3310 display)
 
 On the following platforms:
 
