@@ -23,6 +23,7 @@ The library is capable of interfacing with several different display and even te
 - UART (Terminal-based display for testing w/o display HW, 2 lines by 16 characters)
 - NCURSES (Simulation Linux PC program 2 lines by 16 characters)
 - SSD1036 (128x32 OLED bitmap display)
+- PCD8544 (Nokia 3310 display)
 
 On the following platforms:
 
@@ -32,6 +33,11 @@ On the following platforms:
 
 # Dependencies
 - taxibus library - used to support any physical medium to be attached to any display driver
+- one of the desired display driver (HALs) - please see above for links
+
+# Instructions
+
+TODO
 
 # MISRA
 The code should (almost) follow MISRA rules with some exeptions. Please be aware that I did NOT run an analyzer tool yet, hence there is no guarantee the code actually is. The fact is the code has been compiled without warnings nor strange behavior on a 64-bit Linux machine
