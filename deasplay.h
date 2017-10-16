@@ -37,7 +37,7 @@ extern "C"
 #include <stdint.h>
 
 #include "deasplay_config.h"
-#include "driver/deasplay_hal.h"
+#include "deasplay_hal.h"
 
 typedef uint8_t deasplay_index_t;
 

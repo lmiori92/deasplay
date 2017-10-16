@@ -66,6 +66,7 @@ void display_init(void)
 {
     deasplay_hal_init();
     display_set_cursor(0, 0);
+    deasplay_hal_state_callback(DEASPLAY_STATE_INIT);
 }
 
 void display_power(e_deasplay_power state)
@@ -102,6 +103,7 @@ void display_periodic(void)
     deasplay_index_t chr = 0U;
     uint8_t* b;
 
+    deasplay_hal_state_callback(DEASPLAY_STATE_PERIODIC_START);
     for (i = 0; i < DEASPLAY_BUFFER_ELEMENTS; i++)
     {
         if (display_buffer[i].character != display_buffer[i].character_prev)
@@ -132,6 +134,7 @@ void display_periodic(void)
             line++;
         }
     }
+    deasplay_hal_state_callback(DEASPLAY_STATE_PERIODIC_END);
 
 }
 
